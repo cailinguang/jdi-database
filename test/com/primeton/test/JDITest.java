@@ -19,7 +19,9 @@ public class JDITest {
     static {
         try {
             VMClassFunction vmClassFunction = new VMClassFunction();
-            FunctionLoader.addFunction("C",vmClassFunction,vmClassFunction.getClass().getDeclaredMethods()[0]);
+            FunctionLoader.addFunction("C",vmClassFunction,vmClassFunction.getClass().getDeclaredMethods()[1]);
+
+            FunctionLoader.addFunction("B",vmClassFunction,vmClassFunction.getClass().getDeclaredMethods()[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }

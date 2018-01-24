@@ -45,4 +45,8 @@ public class VMClassFunction {
     }
 
 
+    public String fun(BreakpointEvent event,String a,String b){
+        return a+b;
+    }
+
 }

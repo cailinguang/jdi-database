@@ -30,8 +30,10 @@ public class SessionMonitor extends Monitor{
     public void operate(BreakpointEvent breakpoint) {
         List<Variable> variables = new ArrayList();
         variables.add(Variable.createVariable("event",breakpoint));
-        Object obj = ExpressionEvaluator.evaluate("$C(event,\"org.springframework.web.context.request.RequestContextHolder\",\"getRequestAttributes\")",variables);
-        System.out.println(obj);
+//        Object obj = ExpressionEvaluator.evaluate("$C(event,\"org.springframework.web.context.request.RequestContextHolder\",\"getRequestAttributes\")",variables);
+//        System.out.println(obj);
 
+        Object b = ExpressionEvaluator.evaluate("$B(event,\"testa\",\"testb\")",variables);
+        System.out.println(b);
     }
 }
