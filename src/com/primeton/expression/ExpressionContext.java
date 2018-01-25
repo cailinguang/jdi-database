@@ -9,6 +9,13 @@ import java.util.Map;
 public class ExpressionContext {
     private final Map<String,Object> context = new HashMap();
 
+    public ExpressionContext(){
+
+    }
+    public ExpressionContext(Map<String,Object> map){
+        context.putAll(map);
+    }
+
     public void putObject(String key,Object value){
         context.put(key,value);
     }

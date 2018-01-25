@@ -20,6 +20,5 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="ik-expression" level="project" />
   </component>
 </module>

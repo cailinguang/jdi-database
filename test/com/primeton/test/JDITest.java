@@ -7,7 +7,6 @@ import com.primeton.monitor.SessionMonitor;
 import com.sun.jdi.VirtualMachine;
 import org.jdiscript.JDIScript;
 import org.junit.Test;
-import org.wltea.expression.function.FunctionLoader;
 
 import java.lang.reflect.Array;
 
@@ -17,14 +16,6 @@ import java.lang.reflect.Array;
 public class JDITest {
 
     static {
-        try {
-            VMClassFunction vmClassFunction = new VMClassFunction();
-            FunctionLoader.addFunction("C",vmClassFunction,vmClassFunction.getClass().getDeclaredMethods()[1]);
-
-            FunctionLoader.addFunction("B",vmClassFunction,vmClassFunction.getClass().getDeclaredMethods()[0]);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     @Test
     public void testJDI(){

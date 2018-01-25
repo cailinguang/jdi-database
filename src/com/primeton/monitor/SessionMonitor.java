@@ -4,9 +4,6 @@ import com.primeton.expression.VMClassFunction;
 import com.sun.jdi.Location;
 import com.sun.jdi.event.BreakpointEvent;
 import org.jdiscript.JDIScript;
-import org.wltea.expression.ExpressionEvaluator;
-import org.wltea.expression.datameta.Variable;
-import org.wltea.expression.function.FunctionLoader;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -28,12 +25,12 @@ public class SessionMonitor extends Monitor{
 
     @Override
     public void operate(BreakpointEvent breakpoint) {
-        List<Variable> variables = new ArrayList();
-        variables.add(Variable.createVariable("event",breakpoint));
-//        Object obj = ExpressionEvaluator.evaluate("$C(event,\"org.springframework.web.context.request.RequestContextHolder\",\"getRequestAttributes\")",variables);
-//        System.out.println(obj);
-
-        Object b = ExpressionEvaluator.evaluate("$B(event,\"testa\",\"testb\")",variables);
-        System.out.println(b);
+//        List<Variable> variables = new ArrayList();
+//        variables.add(Variable.createVariable("event",breakpoint));
+////        Object obj = ExpressionEvaluator.evaluate("$C(event,\"org.springframework.web.context.request.RequestContextHolder\",\"getRequestAttributes\")",variables);
+////        System.out.println(obj);
+//
+//        Object b = ExpressionEvaluator.evaluate("$B(event,\"testa\",\"testb\")",variables);
+//        System.out.println(b);
     }
 }

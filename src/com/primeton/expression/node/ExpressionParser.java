@@ -1,10 +1,8 @@
 package com.primeton.expression.node;
 
 import com.primeton.expression.node.reader.ExpressionReader;
-import com.primeton.expression.node.reader.ExpressionReaderFactory;
 import com.primeton.expression.operate.Operator;
 
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -17,16 +15,18 @@ public class ExpressionParser {
 
     public List<Node> analyze(String expression) {
         List<Node> nodes = new ArrayList();
-        String[] expressions =  expression.split("[\\\\r\\\\n\\\\t]");
+        String[] expressions =  expression.split("[\\r\\n\\t;]");
         try {
             for(String exp:expressions){
-                StringReader stringReader = new StringReader(exp);
+                ExpressionStringReader stringReader = new ExpressionStringReader(exp);
                 while (true) {
+                    stringReader.mark(0);
                     char c = (char)stringReader.read();
                     if(c==-1){
                         break;
                     }
-                    if(" .()".indexOf(c)>-1){
+                    if(ExpressionReader.SPLIT.indexOf(c)<0){
+                        stringReader.reset();
                         ExpressionReader reader = ExpressionReaderFactory.createExpressionReader(stringReader);
                         Node node = reader.read(stringReader);
                         nodes.add(node);
