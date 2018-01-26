@@ -14,7 +14,7 @@ public class VariableNode implements Node{
     }
 
     @Override
-    public Object express() {
-        return null;
+    public Object express(ExpressionContext context) {
+        return context.getObject(this.varName);
     }
 }

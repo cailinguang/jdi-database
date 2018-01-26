@@ -5,7 +5,7 @@ import com.sun.jdi.*;
 /**
  * Created by clg on 2018/1/23.
  */
-public class ExpressionUtil {
+public class JDIExpressionUtil {
 
     public static Value getValueFromPrimitive(VirtualMachine vm, Object primitiveValue){
         Value jdiValue = null;

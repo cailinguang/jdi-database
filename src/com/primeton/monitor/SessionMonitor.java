@@ -1,13 +1,17 @@
 package com.primeton.monitor;
 
+import com.primeton.expression.ExpressionExecutor;
 import com.primeton.expression.VMClassFunction;
 import com.sun.jdi.Location;
+import com.sun.jdi.StackFrame;
 import com.sun.jdi.event.BreakpointEvent;
 import org.jdiscript.JDIScript;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by clg on 2018/1/23.
@@ -20,17 +24,17 @@ public class SessionMonitor extends Monitor{
 
     @Override
     public Location setBreakPoint() throws Exception {
-        return j.vm().classesByName("org.springframework.web.servlet.DispatcherServlet").get(0).locationsOfLine(895).get(0);
+        return j.vm().classesByName("org.springframework.web.servlet.DispatcherServlet")
+                .get(0).locationsOfLine(895).get(0);
     }
 
     @Override
-    public void operate(BreakpointEvent breakpoint) {
-//        List<Variable> variables = new ArrayList();
-//        variables.add(Variable.createVariable("event",breakpoint));
-////        Object obj = ExpressionEvaluator.evaluate("$C(event,\"org.springframework.web.context.request.RequestContextHolder\",\"getRequestAttributes\")",variables);
-////        System.out.println(obj);
-//
-//        Object b = ExpressionEvaluator.evaluate("$B(event,\"testa\",\"testb\")",variables);
-//        System.out.println(b);
+    public void operate(BreakpointEvent breakpoint) throws Exception{
+        StackFrame stackFrame = breakpoint.thread().frame(0);
+
+        Map<String, Object> context = new HashMap();
+        context.put("stackFrame",stackFrame);
+        String expression = "";
+        ExpressionExecutor.execute(expression,context);
     }
 }

@@ -4,8 +4,6 @@ import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
 import com.sun.jdi.Value;
 import com.sun.jdi.event.BreakpointEvent;
-import com.sun.jdi.event.Event;
-import org.jdiscript.JDIScript;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,7 @@ public class VMClassFunction {
             }*/
 
             Value returnValue = classType.invokeMethod(event.thread(),classMethod,values,ClassType.INVOKE_SINGLE_THREADED);
-            return ExpressionUtil.getObjFromRefrence(returnValue);
+            return JDIExpressionUtil.getObjFromRefrence(returnValue);
         }catch (Exception e){
             e.printStackTrace();
         }

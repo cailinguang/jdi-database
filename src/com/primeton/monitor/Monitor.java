@@ -24,7 +24,7 @@ public abstract class Monitor {
     /**
      * 操作
      */
-    public abstract void operate(BreakpointEvent breakpoint);
+    public abstract void operate(BreakpointEvent breakpoint) throws Exception;
 
 
     /**

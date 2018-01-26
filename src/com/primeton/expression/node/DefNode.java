@@ -16,8 +16,12 @@ public class DefNode implements Node{
     }
 
     @Override
-    public Object express() {
-        //TODO
-        return null;
+    public Object express(ExpressionContext context) {
+        if(varName==null||left==null){
+            throw new IllegalAccessError("node member variable can't null ");
+        }
+        Object object = left.express(context);
+        context.putObject(varName,left);
+        return object;
     }
 }
