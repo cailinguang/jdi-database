@@ -6,6 +6,7 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/libs/tools.jar!/" />
+      <root url="jar://C:/Program Files/Java/jdk1.8.0_121/src.zip!/" />
     </SOURCES>
   </library>
 </component>

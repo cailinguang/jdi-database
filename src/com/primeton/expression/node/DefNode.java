@@ -18,10 +18,18 @@ public class DefNode implements Node{
     @Override
     public Object express(ExpressionContext context) {
         if(varName==null||left==null){
-            throw new IllegalAccessError("node member variable can't null ");
+            throw new IllegalAccessError("node member variable can't null,"+this);
         }
         Object object = left.express(context);
-        context.putObject(varName,left);
+        context.putObject(varName,object);
         return object;
+    }
+
+    @Override
+    public String toString() {
+        return "DefNode{" +
+                "varName='" + varName + '\'' +
+                ", left=" + left +
+                '}';
     }
 }

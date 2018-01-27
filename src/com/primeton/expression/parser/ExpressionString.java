@@ -17,7 +17,7 @@ public class ExpressionString extends StringReader{
     }
 
     /**
-     * 读取到s，不包括s
+     * 读取到s，包括s
      * 如果后面没有s，则返回""
      * 复位next
      * @param s
@@ -34,17 +34,17 @@ public class ExpressionString extends StringReader{
                 return "";
             }
             char c = (char)i;
+            sb.append(c);
             if(s.indexOf(c)!=-1){
                 break;
             }
-            sb.append(c);
         }
         reset();
         return sb.toString();
     }
 
     /**
-     * 从后面开始读，读取到s，不包括s
+     * 从后面开始读，读取到s，包括s
      * 复位next
      * @param s
      * @return
@@ -64,10 +64,10 @@ public class ExpressionString extends StringReader{
                 lastIndex=index;
             }
         }
-        index=0;
         reset();
-        while(true){
-            if(++index==lastIndex){
+        index=1;
+        while(lastIndex!=0){
+            if(index++>lastIndex){
                 break;
             }
             char c = (char)read();
@@ -87,18 +87,57 @@ public class ExpressionString extends StringReader{
      * @throws IOException
      */
     public String readStrUntil(char c) throws IOException {
-        return readStrUntil(c+"");
+        mark(0);
+        StringBuffer sb = new StringBuffer();
+        while(true){
+            int i = read();
+            if(i==-1) {
+                reset();
+                return "";
+            }
+            char c1 = (char)i;
+            if(c==c1){
+                break;
+            }
+            sb.append(c1);
+        }
+        reset();
+        return sb.toString();
     }
 
     /**
-     * 从后面开始读，读取到c，不包括c
+     * 从后面开始读，读取到c,不包括c
      * 复位next
      * @param c
      * @return
      * @throws IOException
      */
-    public String readLastStrUntil(char c) throws IOException {
-        return readLastStrUntil(c+"");
+    public String readLastStrUntil(char s) throws IOException {
+        mark(0);
+        StringBuffer sb = new StringBuffer();
+        int lastIndex = 0;
+        int index = 0;
+        while(true){
+            int i = read();
+            if(i==-1) break;
+            index++;
+            char c = (char)i;
+            if(s==c){
+                lastIndex=index;
+            }
+        }
+        reset();
+        index=1;
+        while(lastIndex!=0){
+            if(++index>lastIndex){
+                break;
+            }
+            char c = (char)read();
+            sb.append(c);
+        }
+        reset();
+
+        return sb.toString();
     }
 
     public void skipTo(String s) throws IOException{
@@ -150,6 +189,7 @@ public class ExpressionString extends StringReader{
      * @throws IOException
      */
     public String readToEnd() throws IOException{
+        mark(0);
         StringBuffer sb = new StringBuffer();
         while (true){
             int i = read();
@@ -157,6 +197,7 @@ public class ExpressionString extends StringReader{
             char c = (char)i;
             sb.append(c);
         }
+        reset();
         return sb.toString();
     }
 

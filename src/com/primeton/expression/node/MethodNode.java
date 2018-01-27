@@ -4,6 +4,7 @@ import com.primeton.expression.ExpressionContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * Created by clg on 2018/1/26.
@@ -24,12 +25,12 @@ public class MethodNode implements Node {
     public Object express(ExpressionContext context) {
 
         if(object==null||method==null||args==null){
-            throw new IllegalAccessError("node member variable can't null ");
+            throw new IllegalAccessError("node member variable can't null,"+this);
         }
 
         Object oriObject = object.express(context);
         if(oriObject==null){
-            throw new IllegalAccessError("object node return is null ");
+            throw new IllegalAccessError("object node return is null,"+object);
         }
         //get method
         Method method = null;
@@ -39,7 +40,7 @@ public class MethodNode implements Node {
             }
         }
         if(method==null){
-            throw new IllegalAccessError("object don't have method");
+            throw new IllegalAccessError("object:"+object+" cant't find method:"+this.method);
         }
         //get args
         Object[] args = new Object[this.args.length];
@@ -53,5 +54,14 @@ public class MethodNode implements Node {
         } catch (Exception e) {
             throw new RuntimeException("调用方法失败",e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MethodNode{" +
+                "object=" + object +
+                ", method='" + method + '\'' +
+                ", args=" + Arrays.toString(args) +
+                '}';
     }
 }

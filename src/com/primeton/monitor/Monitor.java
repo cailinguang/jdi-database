@@ -45,6 +45,7 @@ public abstract class Monitor {
             try{
                 operate(e);
             }catch (Throwable error){
+                error.printStackTrace();
                 System.out.println(this.getClass().getSimpleName()+" operate error:"+error.getMessage());
             }
         });

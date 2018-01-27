@@ -1,12 +1,14 @@
 package com.primeton.monitor;
 
+import com.primeton.data.ContextData;
+import com.primeton.data.SessionData;
+import com.primeton.expression.ExpressionContext;
 import com.primeton.expression.ExpressionExecutor;
-import com.primeton.expression.VMClassFunction;
 import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.event.BreakpointEvent;
 import org.jdiscript.JDIScript;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,16 +27,37 @@ public class SessionMonitor extends Monitor{
     @Override
     public Location setBreakPoint() throws Exception {
         return j.vm().classesByName("org.springframework.web.servlet.DispatcherServlet")
-                .get(0).locationsOfLine(895).get(0);
+                .get(0).locationsOfLine(921).get(0);
+    }
+
+
+
+    private String sessionExpression;
+    {
+        sessionExpression  = "var session = request@getSession();";
+        sessionExpression += "var sessionId = session@getId();";
+        sessionExpression += "var user = session@getAttribute(\"shiro.currUser\");";
+        sessionExpression += "var userName = user@getUserName();";
     }
 
     @Override
     public void operate(BreakpointEvent breakpoint) throws Exception{
         StackFrame stackFrame = breakpoint.thread().frame(0);
+        ThreadReference thread = stackFrame.thread();
 
-        Map<String, Object> context = new HashMap();
-        context.put("stackFrame",stackFrame);
-        String expression = "";
-        ExpressionExecutor.execute(expression,context);
+        ExpressionContext context = new ExpressionContext();
+        context.putObject("thread",thread);
+        context.putObject("request",stackFrame.getArgumentValues().get(0));
+        ExpressionExecutor.execute(sessionExpression,context);
+
+        String sessionId = (String) context.getObject("sessionId");
+        String userName = (String) context.getObject("userName");
+
+        SessionData sessionData = ContextData.getSessionDataById(sessionId);
+        if(sessionData==null){
+            sessionData = new SessionData(sessionId,userName);
+            ContextData.addSessionData(sessionData);
+            System.out.println("session monitor add sessionData userNaem:"+userName+",sessionId:"+sessionId);
+        }
     }
 }

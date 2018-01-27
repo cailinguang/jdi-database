@@ -8,7 +8,7 @@ import com.primeton.expression.parser.ExpressionString;
  */
 public abstract class ExpressionReader {
     public static final String WORD = "abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ";
-    public static final String NUMBER = "1234567890";
+    public static final String NUMBER = "1234567890.";
     public static final String BLANK = " \r\n\t;";
     public static final String OP_BLANK = ".()";
     public static final String SPLIT = OP_BLANK + BLANK;

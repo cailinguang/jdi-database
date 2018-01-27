@@ -19,13 +19,16 @@ public class FieldNode implements Node{
     @Override
     public Object express(ExpressionContext context) {
         if(object==null||filed==null){
-            throw new IllegalAccessError("node member variable can't null ");
+            throw new IllegalAccessError("node member variable can't null,"+this);
         }
         Object oriObj = object.express(context);
         String fieldName = (String)filed.express(context);
 
-        if(oriObj==null||fieldName==null){
-            throw new IllegalAccessError("objectNode or filedNode eval express return is null!");
+        if(oriObj==null){
+            throw new IllegalAccessError("object node express return null:"+object);
+        }
+        if(fieldName==null){
+            throw new IllegalAccessError("file node express return null:"+filed);
         }
 
         try {
@@ -35,5 +38,13 @@ public class FieldNode implements Node{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "FieldNode{" +
+                "object=" + object +
+                ", filed=" + filed +
+                '}';
     }
 }

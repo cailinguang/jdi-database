@@ -41,18 +41,18 @@ public class JDIMethodExpressionReader extends ExpressionReader{
             String argStr = "";
             while(true){
                 int i = expressionString.read();
-                if(i==-1){
-                    argStrs.add(argStr);
-                    break;
-                }
                 char c = (char)i;
-                if(c==END_MARK){
-                    argStrs.add(argStr);
+                if(i==-1||c==END_MARK){
+                    if(argStr.length()>0){
+                        argStrs.add(argStr);
+                    }
                     break;
                 }
                 if(i==ARGS_APLIT){
-                    argStrs.add(argStr);
-                    argStr="";
+                    if(argStr.length()>0){
+                        argStrs.add(argStr);
+                        argStr="";
+                    }
                     continue;
                 }
                 argStr+=c;

@@ -28,12 +28,9 @@ public class ExpressionExecutor {
     }
 
 
-    public static Object execute(String expression,Map<String,Object> context){
-        ExpressionContext ctx = null;
-        if(context==null){
+    public static Object execute(String expression,ExpressionContext ctx){
+        if(ctx==null){
             ctx = new ExpressionContext();
-        }else{
-            ctx = new ExpressionContext(context);
         }
         ExpressionExecutor executor = new ExpressionExecutor(ctx);
 
@@ -43,16 +40,4 @@ public class ExpressionExecutor {
     }
 
 
-    public static void main(String[] args){
-        String expression = "var hashCode = test.divide(a);\n" +
-                "var c = \"test\"";
-        Map<String, Object> map = new HashMap();
-        map.put("test",new BigDecimal("3.226677777777777777"));
-        map.put("a",new BigDecimal("2"));
-
-
-
-        Object a = execute(expression,map);
-        System.out.println(a);
-    }
 }

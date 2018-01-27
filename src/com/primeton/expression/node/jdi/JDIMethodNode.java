@@ -31,16 +31,14 @@ public class JDIMethodNode implements Node {
         if(object==null||method==null||args==null){
             throw new IllegalAccessError("node member variable can't null ");
         }
-        StackFrame stackFrame = (StackFrame) context.getObject("stackFrame");
-        if(stackFrame==null){
-            new IllegalAccessException("context don't have stackFrameRefrence obj,key is 'stackFrame'");
+        ThreadReference thread = (ThreadReference) context.getObject("thread");
+        if(thread==null){
+            new IllegalAccessException("context don't have ThreadReference obj,key is 'thread'");
         }
-        ThreadReference thread = stackFrame.thread();
-
 
         Object oriObject = object.express(context);
         if(oriObject==null){
-            throw new IllegalAccessError("object node return is null ");
+            throw new IllegalAccessError("object node return is null,"+object);
         }
 
         ObjectReference objectReference = (ObjectReference)oriObject;
@@ -65,7 +63,7 @@ public class JDIMethodNode implements Node {
         List<Value> args = new ArrayList();
         int index=0;
         for(Node argNode:this.args){
-            args.add(JDIExpressionUtil.getValueFromPrimitive(stackFrame.virtualMachine(),argNode.express(context)));
+            args.add(JDIExpressionUtil.getValueFromPrimitive(thread.virtualMachine(),argNode.express(context)));
         }
 
         //invoke method

@@ -17,4 +17,11 @@ public class VariableNode implements Node{
     public Object express(ExpressionContext context) {
         return context.getObject(this.varName);
     }
+
+    @Override
+    public String toString() {
+        return "VariableNode{" +
+                "varName='" + varName + '\'' +
+                '}';
+    }
 }

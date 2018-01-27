@@ -3,6 +3,7 @@ package com.primeton.expression.parser;
 
 import com.primeton.expression.reader.*;
 import com.primeton.expression.reader.jdi.JDIFieldExpressionReader;
+import com.primeton.expression.reader.jdi.JDIMethodExpressionReader;
 
 /**
  * Created by clg on 2018/1/24.
@@ -17,31 +18,35 @@ public class ExpressionReaderFactory {
             char c = (char)reader.read();
             reader.reset();
 
-            String pointStr = reader.readStrUntil('.');
-
+            String pointStr = reader.readStrUntil(".");
+            String jdiPointStr = reader.readStrUntil("@");
             //高优先级在上面
             //var 定义属性
-            if(reader.readStrUntil(StringExpressionReader.BLANK).equals(DefExpressionReader.START_MARK)){
+            if(reader.readStrUntil(ExpressionReader.BLANK).matches(DefExpressionReader.START_MARK+"\\s{0,}")){
                 return DefExpressionReader.class.newInstance().setExpressionReader(reader);
             }
             //" 字符串
             else if(c == StringExpressionReader.START_MARK){
                 return StringExpressionReader.class.newInstance().setExpressionReader(reader);
             }
+            //\d number
+            else if(reader.readStrUntil(StringExpressionReader.NUMBER).matches("^[\\d\\.]+$")){
+                return NumberExpressionReader.class.newInstance().setExpressionReader(reader);
+            }
             //[\w\.]+\(([\w,]+)?\) 方法调用
-            else if(reader.readStrUntil(')').matches("^[\\w\\.]+\\(([\\w,]+)?$") ){
+            else if(reader.readStrUntil(")").matches("^[\\w\\.]+\\((\".*\"|,|\\w+){0,}\\)$") ){
                 return MethodExpressionReader.class.newInstance().setExpressionReader(reader);
             }
             //[\w@]+\(([\w,]+)?\) 方法调用 jdi
-            else if(reader.readStrUntil(')').matches("^[\\w@]+\\(([\\w,]+)?$") ){
-                return MethodExpressionReader.class.newInstance().setExpressionReader(reader);
+            else if(reader.readStrUntil(")").matches("^[\\w@]+\\((\".*\"|,|\\w+){0,}\\)$") ){
+                return JDIMethodExpressionReader.class.newInstance().setExpressionReader(reader);
             }
             //[\w\.]+ 属性调用
-            else if(pointStr!=null && pointStr.matches("^[\\w\\.]+$")){
+            else if(pointStr!=null && pointStr.matches("^(\\w+\\.\\w+)+$")){
                 return FieldExpressionReader.class.newInstance().setExpressionReader(reader);
             }
             //[\w@]+ 属性调用 jdi
-            else if(pointStr!=null && pointStr.matches("^[\\w@]+$")){
+            else if(jdiPointStr!=null && jdiPointStr.matches("^(\\w+\\@\\w+)+$")){
                 return JDIFieldExpressionReader.class.newInstance().setExpressionReader(reader);
             }
             //默认返回引用

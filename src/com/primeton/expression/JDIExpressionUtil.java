@@ -16,25 +16,25 @@ public class JDIExpressionUtil {
             jdiValue = vm.mirrorOf((Byte)primitiveValue);
         }
         else if(primitiveValue instanceof  Character){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((Character)primitiveValue);
         }
         else if(primitiveValue instanceof  Short){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((Short)primitiveValue);
         }
         else if(primitiveValue instanceof  Integer){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((Integer)primitiveValue);
         }
         else if(primitiveValue instanceof  Long){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((Long)primitiveValue);
         }
         else if(primitiveValue instanceof  Float){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((Float)primitiveValue);
         }
         else if(primitiveValue instanceof  Double){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((Double)primitiveValue);
         }
         else if(primitiveValue instanceof  String){
-            jdiValue = vm.mirrorOf((Byte)primitiveValue);
+            jdiValue = vm.mirrorOf((String)primitiveValue);
         }else{
             throw new IllegalArgumentException("value not a primitive value!");
         }
