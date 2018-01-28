@@ -37,7 +37,7 @@ public class SessionMonitor extends Monitor{
         sessionExpression  = "var session = request@getSession();";
         sessionExpression += "var sessionId = session@getId();";
         sessionExpression += "var user = session@getAttribute(\"shiro.currUser\");";
-        sessionExpression += "var userName = user@getUserName();";
+        sessionExpression += "var userName = user==null ? null : user@getUserName();";
     }
 
     @Override
