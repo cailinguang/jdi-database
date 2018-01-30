@@ -11,6 +11,14 @@ import org.junit.Test;
 public class ExpressTest {
 
     @Test
+    public void testExp(){
+        ExpressionContext context = new ExpressionContext();
+        String expression = "\"对对对发3\"";
+        Object obj = ExpressionExecutor.execute(expression,context);
+        Assert.assertEquals("对对对发3",obj.toString());
+    }
+
+    @Test
     public void testDefExpression1(){
         ExpressionContext context = new ExpressionContext();
 
