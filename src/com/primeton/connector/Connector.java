@@ -41,7 +41,7 @@ public class Connector {
      */
     public synchronized VirtualMachine getVM(){
         if(vm==null){
-            vm = new VMSocketAttacher(this.hostName, this.port, this.timeout).attach();
+            vm = new EclipseVMSocketAttacher(this.hostName, this.port, this.timeout).attach();
         }
         return vm;
     }

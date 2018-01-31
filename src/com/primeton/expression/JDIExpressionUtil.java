@@ -2,6 +2,8 @@ package com.primeton.expression;
 
 import com.sun.jdi.*;
 
+import java.util.Date;
+
 /**
  * Created by clg on 2018/1/23.
  */
@@ -35,7 +37,11 @@ public class JDIExpressionUtil {
         }
         else if(primitiveValue instanceof  String){
             jdiValue = vm.mirrorOf((String)primitiveValue);
-        }else{
+        }
+        else if(primitiveValue instanceof Value){
+            return (Value) primitiveValue;
+        }
+        else{
             throw new IllegalArgumentException("value not a primitive value!");
         }
         return jdiValue;
@@ -70,6 +76,11 @@ public class JDIExpressionUtil {
             return ((StringReference)value).value();
         }
         else if(value instanceof ObjectReference){
+            String className = ((ObjectReference)value).referenceType().name();
+            if(className.equals("java.util.Date")||className.equals("java.sql.Date")){
+                Value fastTime = ((ObjectReference)value).getValue(((ObjectReference)value).referenceType().fieldByName("fastTime"));
+                return new Date((Long)getObjFromRefrence(fastTime));
+            }
             return (ObjectReference)value;
         }
         return null;

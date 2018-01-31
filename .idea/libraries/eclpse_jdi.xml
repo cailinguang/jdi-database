@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="eclpse-jdi">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/com.ibm.icu-58.2.0.v20170418-1837.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/jdiscript.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/org.eclipse.jdt.debug.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/org.eclipse.osgi-3.13.0.v20180110-2102.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -26,8 +26,8 @@ public class SessionMonitor extends Monitor{
 
     @Override
     public Location setBreakPoint() throws Exception {
-        return j.vm().classesByName("org.springframework.web.servlet.DispatcherServlet")
-                .get(0).locationsOfLine(921).get(0);
+        return j.vm().classesByName("cn.com.sge.gems.base.web.filter.UserSessionFilter")
+                .get(0).locationsOfLine(71).get(0);
     }
 
 
@@ -36,14 +36,16 @@ public class SessionMonitor extends Monitor{
     {
         sessionExpression  = "var session = request@getSession();";
         sessionExpression += "var sessionId = session@getId();";
-        sessionExpression += "var user = session@getAttribute(\"shiro.currUser\");";
-        sessionExpression += "var userName = user==null ? null : user@getUserName();";
+        sessionExpression += "var user = session@getAttribute(\"SGE_USER\");";
+        sessionExpression += "var userName = user==null ? null : user@loginName;";
     }
 
     @Override
     public void operate(BreakpointEvent breakpoint) throws Exception{
         StackFrame stackFrame = breakpoint.thread().frame(0);
         ThreadReference thread = stackFrame.thread();
+
+        System.out.println("session Monitor thread uid:"+thread.uniqueID());
 
         ExpressionContext context = new ExpressionContext();
         context.putObject("thread",thread);

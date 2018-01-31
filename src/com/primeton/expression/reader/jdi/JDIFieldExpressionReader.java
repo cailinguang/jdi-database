@@ -19,7 +19,7 @@ public class JDIFieldExpressionReader extends ExpressionReader{
     @Override
     public Node read() {
         try {
-            String objName = expressionString.readStrUntil(SPLIT);
+            String objName = expressionString.readLastStrUntil(SPLIT);
             expressionString.skipTo(objName+SPLIT);
 
             Node objNode = ExpressionReaderFactory.createExpressionReader(new ExpressionString(objName)).read();

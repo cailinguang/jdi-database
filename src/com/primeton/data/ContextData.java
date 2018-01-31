@@ -1,5 +1,9 @@
 package com.primeton.data;
 
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -9,7 +13,7 @@ public class ContextData {
     /**
      * session data
      */
-    public static final Vector<SessionData> sessionDatas = new Vector();
+    public static final SimpleListProperty<SessionData> sessionDatas = new SimpleListProperty(FXCollections.observableArrayList());
 
     public static SessionData getSessionDataById(String sessionId){
         int index = sessionDatas.indexOf(new SessionData(sessionId));

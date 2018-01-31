@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="476.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.primeton.client.page.SessionController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER" fx:id="menu">
+        <menus>
+          <Menu mnemonicParsing="false" text="File" fx:id="menuFile">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <left>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <TextField layoutX="54.0" layoutY="22.0" prefHeight="23.0" prefWidth="123.0" fx:id="ipText"/>
+            <Label alignment="CENTER_RIGHT" layoutX="3.0" layoutY="26.0" prefHeight="15.0" prefWidth="48.0" text="IP  " />
+            <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" layoutY="60.0" prefHeight="15.0" prefWidth="55.0" text="PORT  "/>
+            <TextField layoutX="54.0" layoutY="56.0" prefHeight="23.0" prefWidth="123.0" fx:id="portText"/>
+            <Button layoutX="20.0" layoutY="99.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="58.0" text="连接" onAction="#connect"/>
+            <Button layoutX="116.0" layoutY="99.0" mnemonicParsing="false" prefHeight="23.0" prefWidth="58.0" text="断开" />
+         </children>
+      </AnchorPane>
+   </left>
+   <center>
+      <TableView prefHeight="200.0" prefWidth="236.0" fx:id="sessionTable">
+          <columns>
+              <TableColumn prefWidth="75.0" text="用户名" fx:id="userColumn"/>
+              <TableColumn prefWidth="123.0" text="登录名" fx:id="loginColumn"/>
+              <TableColumn minWidth="1.0" prefWidth="113.0" text="SESSIONID" fx:id="sessionColumn"/>
+              <TableColumn editable="false" minWidth="1.0" prefWidth="138.0" sortable="false" text="操作" fx:id="operaterColumn"/>
+          </columns>
+      </TableView>
+   </center>
+</BorderPane>

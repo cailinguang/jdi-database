@@ -10,11 +10,7 @@ public class SessionData {
     private String sessionId;
     private String sessionUserName;
 
-    private List<ThreadData> threadDatas = new Vector();
-
-    public SessionData() {
-
-    }
+    private final List<ThreadData> threadDatas = new Vector();
 
     @Override
     public boolean equals(Object o) {
@@ -42,12 +38,6 @@ public class SessionData {
         this.sessionUserName = sessionUserName;
     }
 
-    public SessionData(String sessionId, String sessionUserName, List<ThreadData> threadDatas) {
-        this.sessionId = sessionId;
-        this.sessionUserName = sessionUserName;
-        this.threadDatas = threadDatas;
-    }
-
     public String getSessionId() {
         return sessionId;
     }
@@ -68,7 +58,13 @@ public class SessionData {
         return threadDatas;
     }
 
-    public void setThreadDatas(List<ThreadData> threadDatas) {
-        this.threadDatas = threadDatas;
+    public ThreadData getThreadDataByThreadId(String threadId){
+        int index = threadDatas.indexOf(new ThreadData(threadId));
+        return index!=-1 ? threadDatas.get(index) : null;
     }
+
+    public void addThreadDataByThread(ThreadData threadData){
+        threadDatas.add(threadData);
+    }
+
 }

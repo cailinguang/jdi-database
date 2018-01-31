@@ -9,15 +9,12 @@ import java.util.Vector;
 public class ThreadData {
     private String threadId;
 
-    private List<String> columns = new Vector();
-
-    private List<String> originalData = new Vector();
-
-    private List<String> data = new Vector();
+    private final List<DatabaseData> databaseDatas = new Vector();
 
     public ThreadData(String threadId) {
         this.threadId = threadId;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -44,27 +41,12 @@ public class ThreadData {
         this.threadId = threadId;
     }
 
-    public List<String> getColumns() {
-        return columns;
+    public List<DatabaseData> getDatabaseDatas() {
+        return databaseDatas;
     }
 
-    public void setColumns(List<String> columns) {
-        this.columns = columns;
-    }
 
-    public List<String> getOriginalData() {
-        return originalData;
-    }
-
-    public void setOriginalData(List<String> originalData) {
-        this.originalData = originalData;
-    }
-
-    public List<String> getData() {
-        return data;
-    }
-
-    public void setData(List<String> data) {
-        this.data = data;
+    public void addDatabaseData(DatabaseData databaseData){
+        databaseDatas.add(databaseData);
     }
 }

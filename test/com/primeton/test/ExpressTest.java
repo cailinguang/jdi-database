@@ -2,8 +2,12 @@ package com.primeton.test;
 
 import com.primeton.expression.ExpressionContext;
 import com.primeton.expression.ExpressionExecutor;
+import com.primeton.expression.node.Node;
+import com.primeton.expression.parser.ExpressionParser;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.List;
 
 /**
  * Created by clg on 2018/1/28.
@@ -114,5 +118,16 @@ public class ExpressTest {
         Object object = ExpressionExecutor.execute(expression,context);
         Assert.assertEquals(object,context.getObject("test2"));
         Assert.assertEquals((byte)1,object);
+    }
+
+    @Test
+    public void testJDIExpresion(){
+        String getSql = "var boundSql = handler@delegate@boundSql;";
+        getSql+= "var configuration = handler@delegate@configuration;";
+        getSql+= "var parameterMappings = boundSql@getParameterMappings();";
+        getSql+= "var sql = boundSql@getSql().replaceAll(\"[\\\\s]+\", \" \")";
+        ExpressionParser parser = new ExpressionParser();
+        List<Node> nodes = parser.analyze(getSql);
+        System.out.print(nodes);
     }
 }
