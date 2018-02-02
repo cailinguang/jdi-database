@@ -9,6 +9,7 @@ import java.util.Vector;
 public class SessionData {
     private String sessionId;
     private String sessionUserName;
+    private String sessionLoginName;
 
     private final List<ThreadData> threadDatas = new Vector();
 
@@ -33,10 +34,6 @@ public class SessionData {
         this.sessionId = sessionId;
     }
 
-    public SessionData(String sessionId, String sessionUserName) {
-        this.sessionId = sessionId;
-        this.sessionUserName = sessionUserName;
-    }
 
     public String getSessionId() {
         return sessionId;
@@ -67,4 +64,11 @@ public class SessionData {
         threadDatas.add(threadData);
     }
 
+    public String getSessionLoginName() {
+        return sessionLoginName;
+    }
+
+    public void setSessionLoginName(String sessionLoginName) {
+        this.sessionLoginName = sessionLoginName;
+    }
 }

@@ -7,27 +7,14 @@ import com.primeton.expression.ExpressionExecutor;
 import com.sun.jdi.Location;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
-import com.sun.jdi.event.BreakpointEvent;
 import org.jdiscript.JDIScript;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by clg on 2018/1/23.
  */
 public class SessionMonitor extends Monitor{
-
     public SessionMonitor(JDIScript j) {
         super(j);
-    }
-
-    @Override
-    public Location setBreakPoint() throws Exception {
-        return j.vm().classesByName("cn.com.sge.gems.base.web.filter.UserSessionFilter")
-                .get(0).locationsOfLine(71).get(0);
     }
 
 
@@ -37,29 +24,45 @@ public class SessionMonitor extends Monitor{
         sessionExpression  = "var session = request@getSession();";
         sessionExpression += "var sessionId = session@getId();";
         sessionExpression += "var user = session@getAttribute(\"SGE_USER\");";
-        sessionExpression += "var userName = user==null ? null : user@loginName;";
+        sessionExpression += "var loginName = user==null ? null : user@getLoginName();";
+        sessionExpression += "var userName = user==null ? null : user@getRealName();";
     }
+
 
     @Override
-    public void operate(BreakpointEvent breakpoint) throws Exception{
-        StackFrame stackFrame = breakpoint.thread().frame(0);
-        ThreadReference thread = stackFrame.thread();
+    public void doMonitor() {
+        Location preLocation = getClassMethodLocations("cn.com.sge.gems.base.web.filter.UserAuthorizationFilter","doFilter",3).get(0);
 
-        System.out.println("session Monitor thread uid:"+thread.uniqueID());
+        j.breakpointRequest(preLocation, breakpoint -> {
+            try {
+                StackFrame stackFrame = breakpoint.thread().frame(0);
+                ThreadReference thread = stackFrame.thread();
 
-        ExpressionContext context = new ExpressionContext();
-        context.putObject("thread",thread);
-        context.putObject("request",stackFrame.getArgumentValues().get(0));
-        ExpressionExecutor.execute(sessionExpression,context);
+                System.out.println("session Monitor thread uid:" + thread.uniqueID());
 
-        String sessionId = (String) context.getObject("sessionId");
-        String userName = (String) context.getObject("userName");
+                ExpressionContext context = new ExpressionContext();
+                context.putObject("thread", thread);
+                context.putObject("request", stackFrame.getArgumentValues().get(0));
+                ExpressionExecutor.execute(sessionExpression, context);
 
-        SessionData sessionData = ContextData.getSessionDataById(sessionId);
-        if(sessionData==null){
-            sessionData = new SessionData(sessionId,userName);
-            ContextData.addSessionData(sessionData);
-            System.out.println("session monitor add sessionData userNaem:"+userName+",sessionId:"+sessionId);
-        }
+                String sessionId = (String) context.getObject("sessionId");
+                String userName = (String) context.getObject("userName");
+                String loginName = (String) context.getObject("loginName");
+
+                SessionData sessionData = ContextData.getSessionDataById(sessionId);
+                if (sessionData == null) {
+                    sessionData = new SessionData(sessionId);
+                    sessionData.setSessionLoginName(loginName);
+                    sessionData.setSessionUserName(userName);
+                    ContextData.addSessionData(sessionData);
+                    System.out.println("session monitor add sessionData userNaem:" + userName + ",sessionId:" + sessionId);
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }).enable();
+
     }
+
 }

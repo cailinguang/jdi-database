@@ -49,4 +49,14 @@ public class ThreadData {
     public void addDatabaseData(DatabaseData databaseData){
         databaseDatas.add(databaseData);
     }
+
+    public DatabaseData getDatabaseDataByPssql(String psSql){
+        for(DatabaseData databaseData:databaseDatas){
+            if(psSql.equals(databaseData.getPsSql())){
+                return databaseData;
+            }
+        }
+        return null;
+    }
+
 }

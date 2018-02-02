@@ -82,14 +82,29 @@ public class JDIMethodNode implements Node {
             throw new IllegalAccessError("object node return is null,"+object);
         }
 
+        //get args
+        List<Value> args = new ArrayList();
+        int index=0;
+        for(Node argNode:this.args){
+            args.add(JDIExpressionUtil.getValueFromPrimitive(thread.virtualMachine(),argNode.express(context)));
+        }
+
+
         ObjectReference objectReference = (ObjectReference)oriObject;
         List<com.sun.jdi.Method> jdiMethods = objectReference.referenceType().methodsByName(method);
         com.sun.jdi.Method oriJdiMethod = null;
         try {
             for (com.sun.jdi.Method jdiMethod : jdiMethods) {
                 if (jdiMethod.argumentTypes().size() == this.args.length) {
-                    oriJdiMethod = jdiMethod;
-                    break;
+                    if(args.size()==0){
+                        oriJdiMethod = jdiMethod;
+                        break;
+                    }
+                    else if(jdiMethod.argumentTypes().get(0).name().equals(args.get(0).type().name())){
+                        oriJdiMethod = jdiMethod;
+                        break;
+                    }
+
                 }
             }
         }catch (Exception e){
@@ -100,12 +115,6 @@ public class JDIMethodNode implements Node {
             throw new IllegalAccessError("object don't have method");
         }
 
-        //get args
-        List<Value> args = new ArrayList();
-        int index=0;
-        for(Node argNode:this.args){
-            args.add(JDIExpressionUtil.getValueFromPrimitive(thread.virtualMachine(),argNode.express(context)));
-        }
 
         //invoke method
         try {

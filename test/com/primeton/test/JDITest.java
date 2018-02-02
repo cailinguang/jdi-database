@@ -39,12 +39,37 @@ public class JDITest {
 
         JDIScript j = new JDIScript(vm);
 
-        Monitor sessionMonitor = new SessionMonitor(j);
-        Monitor sqlMonitor = new SqlMonitor(j);
-        sessionMonitor.monitor();
-        sqlMonitor.monitor();
+        SessionMonitor sessionMonitor = new SessionMonitor(j);
+        sessionMonitor.doMonitor();
+        SqlMonitor sqlMonitor = new SqlMonitor(j);
+        sqlMonitor.doMonitor();
 
         //处理任务超时3s
         j.run();
+    }
+
+    @Test
+    public void testGetSql(){
+        Connector connector = Connector.getInstance();
+        connector.setHostName("180.3.13.118");
+        connector.setPort(8787);
+        connector.setTimeout(10000);//连接超时时间10s
+        VirtualMachine vm = connector.getVM();
+        JDIScript j = new JDIScript(vm);
+
+        j.methodEntryRequest().addClassFilter("oracle.jdbc.driver.PhysicalConnection").addHandler(e->{
+           if("prepareStatement".equals(e.method().name())){
+               System.out.println(e.method().name());
+           }
+        }).enable().setSuspendPolicy(MethodEntryRequest.SUSPEND_EVENT_THREAD);
+
+
+
+        //处理任务超时3s
+        j.run(0);
+    }
+
+    public static void main(String[] args) throws Exception{
+        new JDITest().testJDI();
     }
 }

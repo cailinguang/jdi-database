@@ -19,5 +19,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="eclpse-jdi" level="project" />
+    <orderEntry type="library" name="gsp" level="project" />
   </component>
 </module>

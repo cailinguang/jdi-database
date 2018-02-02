@@ -3,7 +3,9 @@ package com.primeton.data;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -24,4 +26,6 @@ public class ContextData {
         ContextData.sessionDatas.add(sessionData);
     }
 
+    //表列备注信息缓存
+    public static Map<String,Map<String,String>> tableMetaDataCache = new HashMap();
 }
