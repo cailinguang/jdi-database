@@ -120,7 +120,16 @@ public class JDIMethodNode implements Node {
         try {
             Value value = objectReference.invokeMethod(thread, oriJdiMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return JDIExpressionUtil.getObjFromRefrence(value);
-        }catch (Exception e){
+        }
+        catch (InvocationException invocationException){
+            ObjectReference eo = invocationException.exception();
+            String message = null;
+            try {
+                message = ((StringReference) eo.invokeMethod(thread, eo.referenceType().methodsByName("getMessage").get(0), new ArrayList(), ObjectReference.INVOKE_SINGLE_THREADED)).value();
+            }catch (Exception e){}
+            throw new RuntimeException(message,invocationException);
+        }
+        catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("jdi objectReference invoke method error:",e);
         }

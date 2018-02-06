@@ -8,6 +8,7 @@ import com.primeton.data.ThreadData;
 import com.primeton.expression.ExpressionContext;
 import com.primeton.expression.ExpressionExecutor;
 import com.primeton.expression.JDIExpressionUtil;
+import com.primeton.monitor.sql.SqlConvert;
 import com.sun.jdi.Location;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.StackFrame;
@@ -161,123 +162,92 @@ public class SqlMonitor extends Monitor {
      * 当sql为 insert update delete 时执行sql，获取前后对比数据
      */
     private void executSql() {
-        List<Location> executeLocations = getClassMethodLocations("oracle.jdbc.driver.OraclePreparedStatement", "execute", 0);
 
+        OnBreakpoint before = new OnBreakpoint() {
+            @Override
+            public void breakpoint(BreakpointEvent breakpointEvent) {
+                try{
+                    StackFrame stackFrame = breakpointEvent.thread().frame(0);
+                    ThreadReference thread = breakpointEvent.thread();
+
+                    ExpressionContext context = new ExpressionContext();
+                    context.putObject("thread", thread);
+
+                    //getpssql
+                    context.putObject("ps",stackFrame.thisObject());
+                    String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
+                    //session
+                    ExpressionExecutor.execute(sessionStr,context);
+                    String sessionId = (String) context.getObject("sessionId");
+                    //System.out.println("sessionID:"+sessionId);
+
+
+                    ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
+
+                    SessionData sessionData = ContextData.getSessionDataById(sessionId);
+                    ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
+
+                    DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
+
+                    String sql = databaseData.getSql();
+                    SqlConvert convert = new SqlConvert(sql);
+                    String beforeSql = convert.getBrforeSql();
+                    if(beforeSql.length()!=0){
+                        List<String[]> datas = getSqlResult(beforeSql,thread,conn);
+                        databaseData.setOriginalData(datas);
+                        databaseData.setTableMetaData(getTableColumn(convert.getTableName(),thread,conn));
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        OnBreakpoint after = new OnBreakpoint() {
+            @Override
+            public void breakpoint(BreakpointEvent breakpointEvent) {
+                try{
+                    StackFrame stackFrame = breakpointEvent.thread().frame(0);
+                    ThreadReference thread = breakpointEvent.thread();
+
+                    ExpressionContext context = new ExpressionContext();
+                    context.putObject("thread", thread);
+
+                    //getpssql
+                    context.putObject("ps",stackFrame.thisObject());
+                    String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
+                    //session
+                    ExpressionExecutor.execute(sessionStr,context);
+                    String sessionId = (String) context.getObject("sessionId");
+
+                    ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
+
+                    SessionData sessionData = ContextData.getSessionDataById(sessionId);
+                    ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
+
+                    DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
+
+                    String sql = databaseData.getSql();
+                    SqlConvert convert = new SqlConvert(sql);
+                    String afterSql = convert.getAfterSql();
+                    if(afterSql.length()!=0){
+                        List<String[]> datas = getSqlResult(afterSql,thread,conn);
+                        databaseData.setData(datas);
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        List<Location> executeLocations = getClassMethodLocations("oracle.jdbc.driver.OraclePreparedStatement", "executeInternal", 0);
         //start
-        j.breakpointRequest(executeLocations.get(0),breakpointEvent -> {
-            try{
-                StackFrame stackFrame = breakpointEvent.thread().frame(0);
-                ThreadReference thread = breakpointEvent.thread();
-
-                ExpressionContext context = new ExpressionContext();
-                context.putObject("thread", thread);
-
-                //getpssql
-                context.putObject("ps",stackFrame.thisObject());
-                String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
-                //session
-                ExpressionExecutor.execute(sessionStr,context);
-                String sessionId = (String) context.getObject("sessionId");
-                //System.out.println("sessionID:"+sessionId);
-
-
-                ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
-
-                SessionData sessionData = ContextData.getSessionDataById(sessionId);
-                ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
-
-                DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
-
-                String sql = databaseData.getSql();
-                if(sql.matches("^\\s{0,}(?i)delete.*")){
-                    databaseData.setType("delete");
-                    // not execute
-                }
-                else if(sql.matches("^\\s{0,}(?i)update.*")){
-                    databaseData.setType("update");
-                    // befer update
-                    String tableName = databaseData.getTableName();
-
-                    if(sql.split("where").length==2){
-                        sql = "select * from "+tableName+" where "+sql.split("where")[1];
-                        List<String[]> result = getSqlResult(sql,thread,conn);
-                        databaseData.setOriginalData(result);
-                    }
-                    //all table update
-                    else{
-                        sql = "select * from "+tableName;
-                    }
-                }
-                else if(sql.matches("^\\s{0,}(?i)insert.*")){
-                    databaseData.setType("insert");
-                    // not execute
-                }
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }).enable();
+        j.breakpointRequest(executeLocations.get(0),before).enable();
         //end
-        j.breakpointRequest(executeLocations.get(executeLocations.size()-2),breakpointEvent -> {
-            try{
-                StackFrame stackFrame = breakpointEvent.thread().frame(0);
-                ThreadReference thread = breakpointEvent.thread();
+        j.breakpointRequest(executeLocations.get(executeLocations.size()-2),after).enable();
 
-                ExpressionContext context = new ExpressionContext();
-                context.putObject("thread", thread);
-
-                //getpssql
-                context.putObject("ps",stackFrame.thisObject());
-                String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
-                //session
-                ExpressionExecutor.execute(sessionStr,context);
-                String sessionId = (String) context.getObject("sessionId");
-
-                ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
-
-                SessionData sessionData = ContextData.getSessionDataById(sessionId);
-                ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
-
-                DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
-
-                String sql = databaseData.getSql();
-                String tableName = databaseData.getTableName();
-                if(sql.matches("^\\s{0,}(?i)delete.*")){
-                    // not execute
-                }
-                else if(sql.matches("^\\s{0,}(?i)update.*")){
-                    sql = "select * from "+tableName+" where "+sql.split("where")[1];
-                    List<String[]> result = getSqlResult(sql,thread,conn);
-                    databaseData.setData(result);
-                }
-                else if(sql.matches("^\\s{0,}(?i)insert.*")){
-                    List<String> column_ = new ArrayList();
-                    Pattern p = Pattern.compile("(?="+tableName+"\\s{0,}\\(\\s{0,})(\\w+)(?=[,\\s]?)");
-                    Matcher m = p.matcher(sql);
-                    while (m.find()){
-                        column_.add(m.group(1));
-                    }
-
-                    List<String> values_ = new ArrayList();
-                    Pattern p1 = Pattern.compile("(?=(?i)values\\s{0,}\\(\\s{0,})(\\w+)(?=[,\\s]?)");
-                    Matcher m1 = p1.matcher(sql);
-                    while (m1.find()){
-                        values_.add(m1.group(1));
-                    }
-
-                    String where = " where ";
-                    for(int i=0;i<column_.size();i++){
-                        where+= " "+column_.get(i)+" = "+values_.get(0);
-                    }
-                    sql = "select * from "+tableName+where;
-                    List<String[]> result = getSqlResult(sql,thread,conn);
-                    databaseData.setData(result);
-                }
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }).enable();
     }
 
     public Map<String,String> getTableColumn(String tableName, ThreadReference thread, ObjectReference conn){

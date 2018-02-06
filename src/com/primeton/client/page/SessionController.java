@@ -132,7 +132,7 @@ public class SessionController extends Controller {
 
 
             //处理任务超时3s
-            j.run(vmEventHandlers,3000);
+            j.run(vmEventHandlers,0);
 
             app.stopLodding(connectPanel);
             canConnect(false);

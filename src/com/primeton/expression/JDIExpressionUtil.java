@@ -77,7 +77,7 @@ public class JDIExpressionUtil {
         }
         else if(value instanceof ObjectReference){
             String className = ((ObjectReference)value).referenceType().name();
-            if(className.equals("java.util.Date")||className.equals("java.sql.Date")){
+            if(className.equals("java.util.Date")||className.equals("java.sql.Date")||className.equals("java.sql.Timestamp")){
                 Value fastTime = ((ObjectReference)value).getValue(((ObjectReference)value).referenceType().fieldByName("fastTime"));
                 return new Date((Long)getObjFromRefrence(fastTime));
             }

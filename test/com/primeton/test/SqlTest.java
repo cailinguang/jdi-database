@@ -1,6 +1,7 @@
 package com.primeton.test;
 
 import gudusoft.gsqlparser.EDbVendor;
+import gudusoft.gsqlparser.TCustomSqlStatement;
 import gudusoft.gsqlparser.TGSqlParser;
 import gudusoft.gsqlparser.pp.para.GFmtOpt;
 import gudusoft.gsqlparser.pp.para.GFmtOptFactory;
@@ -22,6 +23,10 @@ public class SqlTest {
         GFmtOpt option = GFmtOptFactory.newInstance();
         String formatSQL = FormatterFactory.pp(sqlParser, option);
         System.out.println("格式化后的SQL：\n"+formatSQL);
+
+        TCustomSqlStatement stmt = sqlParser.getSqlstatements().get(0);
+
+        System.out.println(stmt.sqlstatementtype);
 
     }
 }

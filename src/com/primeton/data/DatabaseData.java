@@ -1,37 +1,31 @@
 package com.primeton.data;
 
+import com.primeton.monitor.sql.SqlConvert;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by clg on 2018/1/31.
  */
 public class DatabaseData {
-    private List<String> columns = new Vector();
+    private List<String[]> originalData = null;
 
-    private List<String[]> originalData = new Vector();
+    private List<String[]> data = null;
 
-    private List<String[]> data = new Vector();
-
-    private String tableName;
+    private Map<String,String> tableMetaData;
 
     private String sql;
 
     private String psSql;
 
+    private Object[] sqlParams;
+
     private String type;
 
-    public List<String> getColumns() {
-        return columns;
-    }
-
-    public void setColumns(List<String> columns) {
-        this.columns = columns;
-    }
 
     public List<String[]> getOriginalData() {
         return originalData;
@@ -47,6 +41,14 @@ public class DatabaseData {
 
     public void setData(List<String[]> data) {
         this.data = data;
+    }
+
+    public Map<String, String> getTableMetaData() {
+        return tableMetaData;
+    }
+
+    public void setTableMetaData(Map<String, String> tableMetaData) {
+        this.tableMetaData = tableMetaData;
     }
 
     public String getType() {
@@ -73,16 +75,9 @@ public class DatabaseData {
             }
         }
 
+        this.sqlParams = new Object[index-1];
+
         this.sql = sb.toString();
-
-        Pattern pattern = Pattern.compile("(?i)(update|insert\\s+into|from)\\s+([\\w\\.]+)");
-        Matcher matcher = pattern.matcher(this.sql);
-        matcher.find();
-        this.tableName = matcher.group(2);
-    }
-
-    public String getTableName() {
-        return tableName;
     }
 
     public String getPsSql() {
@@ -98,6 +93,7 @@ public class DatabaseData {
         int i = this.sql.indexOf("[" + index + "]");
         if (i != -1) {
             this.sql = this.sql.substring(0, i) + getParam(obj) + this.sql.substring(i + (3 + index/10));
+            this.sqlParams[index-1] = obj;
         }
     }
 
