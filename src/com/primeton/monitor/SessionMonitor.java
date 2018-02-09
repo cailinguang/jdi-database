@@ -56,6 +56,10 @@ public class SessionMonitor extends Monitor{
                     sessionData.setSessionUserName(userName);
                     ContextData.addSessionData(sessionData);
                     System.out.println("session monitor add sessionData userNaem:" + userName + ",sessionId:" + sessionId);
+                }else{
+                    sessionData.setSessionLoginName(loginName);
+                    sessionData.setSessionUserName(userName);
+                    ContextData.sessionDatas.set(ContextData.sessionDatas.indexOf(sessionData),sessionData);
                 }
 
             }catch (Exception e){

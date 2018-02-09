@@ -3,17 +3,15 @@ package com.primeton.client;
 import com.primeton.client.page.Controller;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.util.Duration;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,15 +29,16 @@ public class MainApp extends Application{
         primaryStage.setScene(new Scene(createContent()));
 
         setUserAgentStylesheet(STYLESHEET_MODENA);
-        primaryStage.getScene().getStylesheets().add(Thread.class.getResource("/com/sun/javafx/scene/control/skin/modena/whiteOnBlack.css").toExternalForm());
+
+        setTheme(primaryStage);
         primaryStage.show();
     }
 
     private Parent createContent() {
-        return replaceSceneContent("page/session.fxml");
+        return loadXmlPane("page/session.fxml").getPane();
     }
 
-    private Pane replaceSceneContent(String fxml) {
+    public Controller loadXmlPane(String fxml) {
         FXMLLoader loader = new FXMLLoader();
         InputStream in = MainApp.class.getResourceAsStream(fxml);
         loader.setBuilderFactory(new JavaFXBuilderFactory());
@@ -55,10 +54,10 @@ public class MainApp extends Application{
             } catch (IOException e) {
             }
         }
-
-        ((Controller) loader.getController()).setApp(this);
-
-        return page;
+        Controller controller = loader.getController();
+        controller.setPane(page);
+        controller.setApp(this);
+        return controller;
     }
 
     public void lodding(Pane root){
@@ -90,6 +89,10 @@ public class MainApp extends Application{
             p.visibleProperty().set(false);
             veil.visibleProperty().set(false);
         }
+    }
+
+    public void setTheme(Stage stage){
+        stage.getScene().getStylesheets().add(Thread.class.getResource("/com/sun/javafx/scene/control/skin/modena/whiteOnBlack.css").toExternalForm());
     }
 
     public static void main(String[] args) {

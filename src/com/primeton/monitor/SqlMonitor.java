@@ -1,18 +1,12 @@
 package com.primeton.monitor;
 
 
-import com.primeton.data.ContextData;
-import com.primeton.data.DatabaseData;
-import com.primeton.data.SessionData;
-import com.primeton.data.ThreadData;
+import com.primeton.data.*;
 import com.primeton.expression.ExpressionContext;
 import com.primeton.expression.ExpressionExecutor;
 import com.primeton.expression.JDIExpressionUtil;
 import com.primeton.monitor.sql.SqlConvert;
-import com.sun.jdi.Location;
-import com.sun.jdi.ObjectReference;
-import com.sun.jdi.StackFrame;
-import com.sun.jdi.ThreadReference;
+import com.sun.jdi.*;
 import com.sun.jdi.event.BreakpointEvent;
 import org.jdiscript.JDIScript;
 import org.jdiscript.handlers.OnBreakpoint;
@@ -40,6 +34,21 @@ public class SqlMonitor extends Monitor {
            sessionStr += "var sessionId = session@getId();";
     }
 
+    /**
+     * execute RequestContextHolder get sessionId
+     * @param thread
+     * @return
+     */
+    private String evalSessionId(ThreadReference thread){
+        //session
+        ExpressionContext context = new ExpressionContext();
+        context.putObject("thread", thread);
+        ExpressionExecutor.execute(sessionStr,context);
+
+        String sessionId = (String) context.getObject("sessionId");
+        return sessionId;
+    }
+
     @Override
     public void doMonitor() {
         //prepareStatement断点，准备sql
@@ -49,27 +58,34 @@ public class SqlMonitor extends Monitor {
                 StackFrame stackFrame1 = breakpointEvent.thread().frame(0);
                 ThreadReference thread = breakpointEvent.thread();
 
-                //sql
-                String sql = (String) JDIExpressionUtil.getObjFromRefrence(stackFrame1.getArgumentValues().get(0));
+                //sql from prepareStatement 0 arg
+                String sql = (String) JDIExpressionUtil.getObjFromRefrence(stackFrame1.getArgumentValues().get(0),thread);
 
-                //session
-                ExpressionContext context = new ExpressionContext();
-                context.putObject("thread", thread);
-                ExpressionExecutor.execute(sessionStr,context);
-
-                String sessionId = (String) context.getObject("sessionId");
-                //System.out.println("sessionID:"+sessionId);
+                //get sessionData
+                String sessionId = evalSessionId(thread);
                 SessionData sessionData = ContextData.getSessionDataById(sessionId);
+                if(sessionData==null){
+                    return;
+                }
+                if(!sessionData.isMonitor()){
+                    return;
+                }
+
+                //add or get threadData
                 ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
                 if(threadData==null){
                     threadData = new ThreadData(String.valueOf(thread.uniqueID()));
+                    //skip query sql
+                    if('R' == new SqlConvert(sql).getCRUD()){
+                        return;
+                    }
                     sessionData.addThreadDataByThread(threadData);
                 }
 
+                //add databaseData
                 DatabaseData databaseData = new DatabaseData();
                 databaseData.setSql(sql);
                 databaseData.setPsSql(sql);
-
                 threadData.addDatabaseData(databaseData);
             }catch (Exception e){
                 e.printStackTrace();
@@ -83,6 +99,28 @@ public class SqlMonitor extends Monitor {
         executSql();
     }
 
+    /**
+     * return prepareStatement field originalSql
+     * sql
+     * @param thread
+     * @param prepareStatement
+     * @return
+     */
+    private String evalPrepareStatementSql(ThreadReference thread,ObjectReference prepareStatement){
+        ExpressionContext context = new ExpressionContext();
+        context.putObject("thread", thread);
+        context.putObject("ps",prepareStatement);
+        String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
+        return psSql;
+    }
+
+    private ObjectReference getConnectionFromPs(ThreadReference thread,ObjectReference prepareStatement){
+        ExpressionContext context = new ExpressionContext();
+        context.putObject("thread", thread);
+        context.putObject("ps",prepareStatement);
+        ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
+        return conn;
+    }
 
     /**
      * 设置OraclePreparedStatement 的 setObject等方法断点，依次替换?的值
@@ -111,29 +149,36 @@ public class SqlMonitor extends Monitor {
                 try{
                     StackFrame stackFrame = breakpointEvent.thread().frame(0);
                     ThreadReference thread = breakpointEvent.thread();
+                    ObjectReference thisObject = stackFrame.thisObject();
+                    Value indexObject = stackFrame.getArgumentValues().get(0);
+                    Value valueObject = stackFrame.getArgumentValues().get(1);
 
-                    ExpressionContext context = new ExpressionContext();
-                    context.putObject("thread", thread);
-
-                    int index = (int)JDIExpressionUtil.getObjFromRefrence(stackFrame.getArgumentValues().get(0));
-                    Object obj = JDIExpressionUtil.getObjFromRefrence(stackFrame.getArgumentValues().get(1));
-
-                    //System.out.println("thread uid:"+thread.uniqueID()+",index:"+index+",obj:"+obj);
-
-                    //getpssql
-                    context.putObject("ps",stackFrame.thisObject());
-                    String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
-
-                    //session
-                    ExpressionExecutor.execute(sessionStr,context);
-
-                    String sessionId = (String) context.getObject("sessionId");
-                    //System.out.println("sessionID:"+sessionId);
+                    //get sessionData
+                    String sessionId = evalSessionId(thread);
                     SessionData sessionData = ContextData.getSessionDataById(sessionId);
+                    if(sessionData==null){
+                        return;
+                    }
+                    if(!sessionData.isMonitor()){
+                        return;
+                    }
+                    //get thread data
                     ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
-
+                    if(threadData==null){
+                        return;
+                    }
+                    //get databaseData
+                    String psSql = evalPrepareStatementSql(thread,thisObject);
                     DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
+                    if(databaseData==null){
+                        return;
+                    }
+
+                    //set sql param
+                    int index = (int)JDIExpressionUtil.getObjFromRefrence(indexObject,thread);
+                    Object obj = JDIExpressionUtil.getObjFromRefrence(valueObject,thread);
                     databaseData.setParam(index,obj);
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -163,39 +208,46 @@ public class SqlMonitor extends Monitor {
      */
     private void executSql() {
 
+        //before sql execute event
         OnBreakpoint before = new OnBreakpoint() {
             @Override
             public void breakpoint(BreakpointEvent breakpointEvent) {
                 try{
                     StackFrame stackFrame = breakpointEvent.thread().frame(0);
                     ThreadReference thread = breakpointEvent.thread();
-
-                    ExpressionContext context = new ExpressionContext();
-                    context.putObject("thread", thread);
-
-                    //getpssql
-                    context.putObject("ps",stackFrame.thisObject());
-                    String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
-                    //session
-                    ExpressionExecutor.execute(sessionStr,context);
-                    String sessionId = (String) context.getObject("sessionId");
-                    //System.out.println("sessionID:"+sessionId);
+                    ObjectReference thisObject = stackFrame.thisObject();
 
 
-                    ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
-
+                    //get sessionData
+                    String sessionId = evalSessionId(thread);
                     SessionData sessionData = ContextData.getSessionDataById(sessionId);
+                    if(sessionData==null){
+                        return;
+                    }
+
+                    //get thread data
                     ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
-
+                    if(threadData==null){
+                        return;
+                    }
+                    //get databaseData
+                    String psSql = evalPrepareStatementSql(thread,thisObject);
                     DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
+                    if(databaseData==null){
+                        return;
+                    }
 
+                    ObjectReference conn = getConnectionFromPs(thread,thisObject);
                     String sql = databaseData.getSql();
+
                     SqlConvert convert = new SqlConvert(sql);
+                    databaseData.setTableMetaData(getTableColumn(convert.getTableName(),thread,conn));
+                    databaseData.setTableName(convert.getTableName());
+
                     String beforeSql = convert.getBrforeSql();
                     if(beforeSql.length()!=0){
-                        List<String[]> datas = getSqlResult(beforeSql,thread,conn);
+                        List<DatabaseRow> datas = getSqlResult(beforeSql,thread,conn);
                         databaseData.setOriginalData(datas);
-                        databaseData.setTableMetaData(getTableColumn(convert.getTableName(),thread,conn));
                     }
 
                 }catch (Exception e){
@@ -204,37 +256,47 @@ public class SqlMonitor extends Monitor {
             }
         };
 
+        //after sql execute event
         OnBreakpoint after = new OnBreakpoint() {
             @Override
             public void breakpoint(BreakpointEvent breakpointEvent) {
                 try{
                     StackFrame stackFrame = breakpointEvent.thread().frame(0);
                     ThreadReference thread = breakpointEvent.thread();
+                    ObjectReference thisObject = stackFrame.thisObject();
 
-                    ExpressionContext context = new ExpressionContext();
-                    context.putObject("thread", thread);
-
-                    //getpssql
-                    context.putObject("ps",stackFrame.thisObject());
-                    String psSql = (String)ExpressionExecutor.execute("ps@sqlObject@originalSql",context);
-                    //session
-                    ExpressionExecutor.execute(sessionStr,context);
-                    String sessionId = (String) context.getObject("sessionId");
-
-                    ObjectReference conn = (ObjectReference) ExpressionExecutor.execute("ps@connection", context);
-
+                    //get sessionData
+                    String sessionId = evalSessionId(thread);
                     SessionData sessionData = ContextData.getSessionDataById(sessionId);
-                    ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
+                    if(sessionData==null){
+                        return;
+                    }
 
+                    //get thread data
+                    ThreadData threadData = sessionData.getThreadDataByThreadId(String.valueOf(thread.uniqueID()));
+                    if(threadData==null){
+                        return;
+                    }
+                    //get databaseData
+                    String psSql = evalPrepareStatementSql(thread,thisObject);
                     DatabaseData databaseData = threadData.getDatabaseDataByPssql(psSql);
+                    if(databaseData==null){
+                        return;
+                    }
+
+                    ObjectReference conn = getConnectionFromPs(thread,thisObject);
 
                     String sql = databaseData.getSql();
                     SqlConvert convert = new SqlConvert(sql);
                     String afterSql = convert.getAfterSql();
                     if(afterSql.length()!=0){
-                        List<String[]> datas = getSqlResult(afterSql,thread,conn);
+                        List<DatabaseRow> datas = getSqlResult(afterSql,thread,conn);
                         databaseData.setData(datas);
                     }
+                    //last set type
+                    databaseData.setType(convert.getCRUD());
+                    //trigger list listener
+                    threadData.databaseDatas.set(threadData.databaseDatas.indexOf(databaseData),databaseData);
 
                 }catch (Exception e){
                     e.printStackTrace();
@@ -242,6 +304,7 @@ public class SqlMonitor extends Monitor {
             }
         };
 
+        //set before/after event request
         List<Location> executeLocations = getClassMethodLocations("oracle.jdbc.driver.OraclePreparedStatement", "executeInternal", 0);
         //start
         j.breakpointRequest(executeLocations.get(0),before).enable();
@@ -250,6 +313,13 @@ public class SqlMonitor extends Monitor {
 
     }
 
+    /**
+     * execute oracle sql get column remarks
+     * @param tableName
+     * @param thread
+     * @param conn
+     * @return
+     */
     public Map<String,String> getTableColumn(String tableName, ThreadReference thread, ObjectReference conn){
         if(ContextData.tableMetaDataCache.containsKey(tableName)){
             return ContextData.tableMetaDataCache.get(tableName);
@@ -274,8 +344,15 @@ public class SqlMonitor extends Monitor {
         }
     }
 
-    public List<String[]> getSqlResult(String sql, ThreadReference thread, ObjectReference conn){
-        List<String[]> result = new ArrayList();
+    /**
+     * execute sql and return  results
+     * @param sql
+     * @param thread
+     * @param conn
+     * @return
+     */
+    public List<DatabaseRow> getSqlResult(String sql, ThreadReference thread, ObjectReference conn){
+        List<DatabaseRow> result = new ArrayList();
         ExpressionContext context = new ExpressionContext();
         context.putObject("thread",thread);
         context.putObject("conn",conn);
@@ -293,12 +370,14 @@ public class SqlMonitor extends Monitor {
 
 
         while ((boolean)ExpressionExecutor.execute("rs@next()",context)){
-            for(String c:columnNames){
-                String[] keyValue = new String[2];
-                keyValue[0] = c;
-                keyValue[1] = (String)ExpressionExecutor.execute("rs@getString(\""+c+"\")",context);
-                result.add(keyValue);
+            DatabaseRow row = new DatabaseRow();
+            row.setColumns(columnNames);
+            row.setValues(new String[columnNames.length]);
+            for(int i=0;i<columnNames.length;i++){
+                row.getValues()[i] =
+                        (String)ExpressionExecutor.execute("rs@getString(\""+columnNames[i]+"\")",context);
             }
+            result.add(row);
         }
 
         return result;

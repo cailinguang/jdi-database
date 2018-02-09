@@ -10,6 +10,7 @@ import gudusoft.gsqlparser.nodes.TMultiTargetList;
 import gudusoft.gsqlparser.nodes.TResultColumn;
 import gudusoft.gsqlparser.stmt.TDeleteSqlStatement;
 import gudusoft.gsqlparser.stmt.TInsertSqlStatement;
+import gudusoft.gsqlparser.stmt.TSelectSqlStatement;
 import gudusoft.gsqlparser.stmt.TUpdateSqlStatement;
 
 /**
@@ -36,6 +37,17 @@ public class SqlConvert {
     }
 
     public String getTableName(){
+        //fix sub query getTableName is null
+        if(statement instanceof TSelectSqlStatement){
+            TSelectSqlStatement s = (TSelectSqlStatement)statement;
+            while (s.getTables().getTable(0).getTableName()==null && s.getTables().getTable(0).getSubquery()!=null){
+                if(s.getTables().getTable(0).getSubquery().getTables().getTable(0).getTableName()!=null){
+                    return s.getTables().getTable(0).getSubquery().getTables().getTable(0).getFullName();
+                }else{
+                    s = s.getTables().getTable(0).getSubquery();
+                }
+            }
+        }
         return statement.getTables().getTable(0).getFullName();
     }
 
@@ -51,14 +63,14 @@ public class SqlConvert {
                 sb.append(" and ");
                 sb.append(update.getWhereClause().getCondition());
             }
-            for(int i=0;i<update.getResultColumnList().size();i++){
+            /*for(int i=0;i<update.getResultColumnList().size();i++){
                 TResultColumn resultColumn = update.getResultColumnList().getResultColumn(i);
                 TExpression expression = resultColumn.getExpr();
                 sb.append(" and ");
                 sb.append(expression.getLeftOperand().toString());
                 sb.append("=");
                 sb.append(expression.getRightOperand().toString());
-            }
+            }*/
         }
         else if(type=='D'){
             TDeleteSqlStatement delete = (TDeleteSqlStatement)statement;

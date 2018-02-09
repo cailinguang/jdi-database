@@ -52,6 +52,7 @@ public class Connector {
     public void disconnectVM(){
         if(vm!=null){
             vm.dispose();
+            vm = null;
         }
     }
 

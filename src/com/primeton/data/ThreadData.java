@@ -1,5 +1,8 @@
 package com.primeton.data;
 
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -9,7 +12,7 @@ import java.util.Vector;
 public class ThreadData {
     private String threadId;
 
-    private final List<DatabaseData> databaseDatas = new Vector();
+    public final SimpleListProperty<DatabaseData> databaseDatas = new SimpleListProperty(FXCollections.observableArrayList());
 
     public ThreadData(String threadId) {
         this.threadId = threadId;
@@ -41,7 +44,7 @@ public class ThreadData {
         this.threadId = threadId;
     }
 
-    public List<DatabaseData> getDatabaseDatas() {
+    public SimpleListProperty<DatabaseData> getDatabaseDatas() {
         return databaseDatas;
     }
 

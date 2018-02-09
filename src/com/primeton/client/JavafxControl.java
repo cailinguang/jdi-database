@@ -1,4 +1,4 @@
-package com.primeton.client.page;
+package com.primeton.client;
 
 import com.sun.javafx.scene.control.skin.NestedTableColumnHeader;
 import com.sun.javafx.scene.control.skin.TableColumnHeader;
@@ -20,6 +20,14 @@ import java.util.List;
  * Created by clg on 2018/2/1.
  */
 public class JavafxControl {
+    public static void tableColumnAutoWidth(final TableView table){
+        int columnSize = table.getColumns().size();
+        float[] widths = new float[columnSize];
+        for(int i=0;i<columnSize;i++){
+            widths[i] = 1;
+        }
+        tableColumnAutoWidth(table,widths);
+    }
    public static void tableColumnAutoWidth(final TableView table,float[] widths){
        // To generalize the columns width proportions in relation to the table width,
        // you do not need to put pixel related values, you can use small float numbers if you wish,

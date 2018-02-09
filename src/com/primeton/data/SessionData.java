@@ -1,7 +1,8 @@
 package com.primeton.data;
 
-import java.util.List;
-import java.util.Vector;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+
 
 /**
  * Created by clg on 2017/12/26.
@@ -11,7 +12,9 @@ public class SessionData {
     private String sessionUserName;
     private String sessionLoginName;
 
-    private final List<ThreadData> threadDatas = new Vector();
+    private boolean isMonitor = false;
+
+    private final SimpleListProperty<ThreadData> threadDatas = new SimpleListProperty(FXCollections.observableArrayList());
 
     @Override
     public boolean equals(Object o) {
@@ -51,7 +54,7 @@ public class SessionData {
         this.sessionUserName = sessionUserName;
     }
 
-    public List<ThreadData> getThreadDatas() {
+    public SimpleListProperty<ThreadData> getThreadDatas() {
         return threadDatas;
     }
 
@@ -70,5 +73,13 @@ public class SessionData {
 
     public void setSessionLoginName(String sessionLoginName) {
         this.sessionLoginName = sessionLoginName;
+    }
+
+    public boolean isMonitor() {
+        return isMonitor;
+    }
+
+    public void setMonitor(boolean monitor) {
+        isMonitor = monitor;
     }
 }

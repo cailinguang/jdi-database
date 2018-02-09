@@ -2,6 +2,7 @@ package com.primeton.expression;
 
 import com.sun.jdi.*;
 
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -47,7 +48,7 @@ public class JDIExpressionUtil {
         return jdiValue;
     }
 
-    public static Object getObjFromRefrence(Value value){
+    public static Object getObjFromRefrence(Value value,ThreadReference thread){
         if(value instanceof BooleanValue){
             return ((BooleanValue)value).value();
         }
@@ -78,8 +79,12 @@ public class JDIExpressionUtil {
         else if(value instanceof ObjectReference){
             String className = ((ObjectReference)value).referenceType().name();
             if(className.equals("java.util.Date")||className.equals("java.sql.Date")||className.equals("java.sql.Timestamp")){
-                Value fastTime = ((ObjectReference)value).getValue(((ObjectReference)value).referenceType().fieldByName("fastTime"));
-                return new Date((Long)getObjFromRefrence(fastTime));
+                //Value fastTime = ((ObjectReference)value).getValue(((ObjectReference)value).referenceType().fieldByName("fastTime"));
+                try {
+                    Value time = ((ObjectReference) value).invokeMethod(thread, ((ObjectReference) value).referenceType().methodsByName("getTime").get(0), Collections.emptyList(), ObjectReference.INVOKE_NONVIRTUAL);
+                    return new Date((Long)getObjFromRefrence(time,thread));
+                }catch (Exception e){e.printStackTrace();}
+                return null;
             }
             return (ObjectReference)value;
         }

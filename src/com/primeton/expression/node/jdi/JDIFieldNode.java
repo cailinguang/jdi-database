@@ -4,6 +4,7 @@ import com.primeton.expression.ExpressionContext;
 import com.primeton.expression.JDIExpressionUtil;
 import com.primeton.expression.node.Node;
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 
 import java.lang.reflect.Field;
@@ -32,10 +33,16 @@ public class JDIFieldNode implements Node{
             throw new IllegalAccessError("objectNode or filedNode eval express return is null!");
         }
 
+        ThreadReference thread = (ThreadReference) context.getObject("thread");
+        if(thread==null){
+            new IllegalAccessException("context don't have ThreadReference obj,key is 'thread'");
+        }
+
+
         ObjectReference objectReference = (ObjectReference) oriObj;
         com.sun.jdi.Field jdiField = objectReference.referenceType().fieldByName(fieldName);
         Value value = objectReference.getValue(jdiField);
 
-        return JDIExpressionUtil.getObjFromRefrence(value);
+        return JDIExpressionUtil.getObjFromRefrence(value,thread);
     }
 }
