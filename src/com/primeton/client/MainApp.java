@@ -27,7 +27,7 @@ public class MainApp extends Application{
         stage = primaryStage;
         //primaryStage.setResizable(false);
         primaryStage.setScene(new Scene(createContent()));
-
+        primaryStage.setTitle("PRIMETON-sql-monitor");
         setUserAgentStylesheet(STYLESHEET_MODENA);
 
         setTheme(primaryStage);

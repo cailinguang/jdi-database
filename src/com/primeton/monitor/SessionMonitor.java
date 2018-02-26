@@ -55,11 +55,12 @@ public class SessionMonitor extends Monitor{
                     sessionData.setSessionLoginName(loginName);
                     sessionData.setSessionUserName(userName);
                     ContextData.addSessionData(sessionData);
-                    System.out.println("session monitor add sessionData userNaem:" + userName + ",sessionId:" + sessionId);
+                    System.out.println("session monitor add sessionData userName:" + userName + ",sessionId:" + sessionId);
                 }else{
                     sessionData.setSessionLoginName(loginName);
                     sessionData.setSessionUserName(userName);
                     ContextData.sessionDatas.set(ContextData.sessionDatas.indexOf(sessionData),sessionData);
+                    System.out.println("session monitor update sessionData userName:" + userName + ",sessionId:" + sessionId);
                 }
 
             }catch (Exception e){

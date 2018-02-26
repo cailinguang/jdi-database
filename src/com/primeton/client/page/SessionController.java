@@ -188,6 +188,14 @@ public class SessionController extends Controller {
 
     private Map<String,Stage> sqlStageMap = new HashMap();
 
+    public void close(ActionEvent actionEvent) {
+        System.exit(0);
+    }
+
+    public void about(ActionEvent actionEvent) {
+        alertInfo("desc : insert/update/delete database operate monitory.\n\nversion : 1.0\n\n");
+    }
+
     private class AddSessionButton extends TableCell<SessionData, SessionData> {
         // a button for adding a new person.
         final Button monitorButton = new Button("监控");

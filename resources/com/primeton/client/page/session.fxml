@@ -11,12 +11,17 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File" fx:id="menuFile">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem mnemonicParsing="false" text="Close" onAction="#close"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="LOG ANALYSIS">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="select log file and analysis" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
+                        <MenuItem mnemonicParsing="false" text="About" onAction="#about"/>
                     </items>
                 </Menu>
             </menus>

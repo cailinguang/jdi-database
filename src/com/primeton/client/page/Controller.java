@@ -41,6 +41,15 @@ public abstract class Controller  implements Initializable {
         _alert.showAndWait();
     }
 
+    public void alertInfo(String info){
+        Alert _alert = new Alert(Alert.AlertType.INFORMATION);
+        _alert.setTitle("信息");
+        _alert.setHeaderText(null);
+        _alert.setContentText(info);
+        _alert.initOwner(app.stage);
+        _alert.showAndWait();
+    }
+
     public void alertError(Exception ex){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Exception Dialog");

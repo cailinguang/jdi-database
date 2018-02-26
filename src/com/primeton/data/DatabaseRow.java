@@ -1,5 +1,7 @@
 package com.primeton.data;
 
+import java.util.Arrays;
+
 /**
  * Created by clg on 2018/2/7.
  */
@@ -30,5 +32,13 @@ public class DatabaseRow {
             }
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "DatabaseRow{" +
+                "columns=" + Arrays.toString(columns) +
+                ", values=" + Arrays.toString(values) +
+                '}';
     }
 }

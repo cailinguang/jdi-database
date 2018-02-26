@@ -11,10 +11,7 @@ import com.sun.jdi.event.BreakpointEvent;
 import org.jdiscript.JDIScript;
 import org.jdiscript.handlers.OnBreakpoint;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,6 +84,8 @@ public class SqlMonitor extends Monitor {
                 databaseData.setSql(sql);
                 databaseData.setPsSql(sql);
                 threadData.addDatabaseData(databaseData);
+
+                System.out.println("tid:"+thread.uniqueID()+" add prepareStatement,sql:"+databaseData.getSql());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -179,6 +178,7 @@ public class SqlMonitor extends Monitor {
                     Object obj = JDIExpressionUtil.getObjFromRefrence(valueObject,thread);
                     databaseData.setParam(index,obj);
 
+                    System.out.println("tid:"+thread.uniqueID()+" set param: index:"+index+",obj:"+obj);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -248,8 +248,10 @@ public class SqlMonitor extends Monitor {
                     if(beforeSql.length()!=0){
                         List<DatabaseRow> datas = getSqlResult(beforeSql,thread,conn);
                         databaseData.setOriginalData(datas);
-                    }
 
+                        System.out.println("tid:"+thread.uniqueID()+" before sql:"+beforeSql);
+                        System.out.println("tid:"+thread.uniqueID()+" before data:"+ Arrays.toString(datas.toArray()));
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -292,6 +294,9 @@ public class SqlMonitor extends Monitor {
                     if(afterSql.length()!=0){
                         List<DatabaseRow> datas = getSqlResult(afterSql,thread,conn);
                         databaseData.setData(datas);
+
+                        System.out.println("tid:"+thread.uniqueID()+" after sql:"+afterSql);
+                        System.out.println("tid:"+thread.uniqueID()+" after data:"+ Arrays.toString(datas.toArray()));
                     }
                     //last set type
                     databaseData.setType(convert.getCRUD());
