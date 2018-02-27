@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="jdi-database:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/jdi_database_jar</output-path>
+    <root id="root">
+      <element id="archive" name="jdi-database.jar">
+        <element id="module-output" name="jdi-database" />
+      </element>
+      <element id="library" level="project" name="gsp" />
+      <element id="library" level="project" name="eclpse-jdi" />
+    </root>
+  </artifact>
+</component>

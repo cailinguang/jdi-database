@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: gsp.jar com.ibm.icu-58.2.0.v20170418-1837.jar jdiscript.ja
+ r org.eclipse.jdt.debug.jar org.eclipse.osgi-3.13.0.v20180110-2102.ja
+ r
+Main-Class: com.primeton.client.MainApp
+
