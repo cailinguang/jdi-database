@@ -2,6 +2,7 @@ package com.primeton.expression;
 
 import com.sun.jdi.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 
@@ -83,6 +84,13 @@ public class JDIExpressionUtil {
                 try {
                     Value time = ((ObjectReference) value).invokeMethod(thread, ((ObjectReference) value).referenceType().methodsByName("getTime").get(0), Collections.emptyList(), ObjectReference.INVOKE_NONVIRTUAL);
                     return new Date((Long)getObjFromRefrence(time,thread));
+                }catch (Exception e){e.printStackTrace();}
+                return null;
+            }
+            if(className.equals("java.math.BigDecimal")){
+                try {
+                    Value time = ((ObjectReference) value).invokeMethod(thread, ((ObjectReference) value).referenceType().methodsByName("toString").get(0), Collections.emptyList(), ObjectReference.INVOKE_NONVIRTUAL);
+                    return new BigDecimal((String)getObjFromRefrence(time,thread));
                 }catch (Exception e){e.printStackTrace();}
                 return null;
             }

@@ -85,7 +85,7 @@ public class SqlController extends Controller{
                                     break;
                                 }
                                 case 'U':{
-                                    int oldSize = databaseData.getData().size();
+                                    int oldSize = databaseData.getOriginalData().size();
                                     int newSize = databaseData.getData().size();
                                     for(int i=0;i<oldSize;i++){
                                         TableColumn data = new TableColumn();
@@ -102,7 +102,7 @@ public class SqlController extends Controller{
                                     break;
                                 }
                                 case 'D':{
-                                    int oldSize = databaseData.getData().size();
+                                    int oldSize = databaseData.getOriginalData().size();
                                     for(int i=0;i<oldSize;i++){
                                         TableColumn data = new TableColumn();
                                         data.setText("数据"+(i+1));

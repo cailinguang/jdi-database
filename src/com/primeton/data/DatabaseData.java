@@ -3,6 +3,7 @@ package com.primeton.data;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -113,6 +114,9 @@ public class DatabaseData {
         }
         if(obj instanceof Date){
             return "to_timestamp('" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS").format((Date)obj)+"','yyyy-MM-dd HH24:mi:ss ff')";
+        }
+        if(obj instanceof BigDecimal){
+            return ((BigDecimal)obj).toPlainString();
         }
         return "'"+obj.toString()+"'";
     }

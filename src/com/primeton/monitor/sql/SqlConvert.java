@@ -99,8 +99,16 @@ public class SqlConvert {
             for(int i=0;i<insert.getColumnList().size();i++){
                 sb.append(" and ");
                 sb.append(insert.getColumnList().getObjectName(i).toString());
-                sb.append("=");
-                sb.append(value.getColumnList().getResultColumn(i).toString());
+                String val = value.getColumnList().getResultColumn(i).toString();
+                if(val.trim().equalsIgnoreCase("NULL")){
+                    sb.append(" is NULL ");
+                }else{
+                    sb.append("=");
+                    if(val.matches("^.*select.*max.*\\+1.*$")){
+                        val = val.replaceAll("\\+1","");
+                    }
+                    sb.append(val);
+                }
             }
         }
         else if(type=='U'){
@@ -112,14 +120,15 @@ public class SqlConvert {
                 sb.append(" and ");
                 sb.append(update.getWhereClause().getCondition());
             }
-            for(int i=0;i<update.getResultColumnList().size();i++){
+            //更新后的字段暂时不做条件查询
+            /*for(int i=0;i<update.getResultColumnList().size();i++){
                 TResultColumn resultColumn = update.getResultColumnList().getResultColumn(i);
                 TExpression expression = resultColumn.getExpr();
                 sb.append(" and ");
                 sb.append(expression.getLeftOperand().toString());
                 sb.append("=");
                 sb.append(expression.getRightOperand().toString());
-            }
+            }*/
         }
 
         return sb.toString();

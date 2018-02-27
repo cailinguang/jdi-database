@@ -176,6 +176,11 @@ public class SqlMonitor extends Monitor {
                     //set sql param
                     int index = (int)JDIExpressionUtil.getObjFromRefrence(indexObject,thread);
                     Object obj = JDIExpressionUtil.getObjFromRefrence(valueObject,thread);
+
+                    if(stackFrame.location().method().name().equalsIgnoreCase("setNull")){
+                        obj = null;
+                    }
+
                     databaseData.setParam(index,obj);
 
                     System.out.println("tid:"+thread.uniqueID()+" set param: index:"+index+",obj:"+obj);
@@ -239,6 +244,8 @@ public class SqlMonitor extends Monitor {
 
                     ObjectReference conn = getConnectionFromPs(thread,thisObject);
                     String sql = databaseData.getSql();
+
+                    System.out.println("tid:"+thread.uniqueID()+" after param set sql:"+sql);
 
                     SqlConvert convert = new SqlConvert(sql);
                     databaseData.setTableMetaData(getTableColumn(convert.getTableName(),thread,conn));
